@@ -50,7 +50,7 @@ declare -A DL_INDEX=(
 [transparent_220x132_0.8W]=1066)
 DL_INDEX+=(
 [transparentdark_220x132_skylink]=4690 [transparentdark_220x132_freeSAT]=4986 [transparentdark_220x132_digiczsk]=4680
-[transparentdark_220x132_antiksat]= [transparentdark_220x132_dvbtCZSK]=4684 [transparentdark_220x132_DTTitaly]=4682
+[transparentdark_220x132_antiksat]=4678 [transparentdark_220x132_dvbtCZSK]=4684 [transparentdark_220x132_DTTitaly]=4682
 [transparentdark_220x132_9.0E]=4594 [transparentdark_220x132_81.5E]=4676 [transparentdark_220x132_85.0E]=4674
 [transparentdark_220x132_8.0W]=4592 [transparentdark_220x132_75.0E]=4672 [transparentdark_220x132_74.9E]=4670
 [transparentdark_220x132_70.5E]=4668 [transparentdark_220x132_7.0W]=4590 [transparentdark_220x132_7.0E]=4588
