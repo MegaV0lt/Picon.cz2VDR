@@ -1,7 +1,7 @@
 ########################### KONFIGURATION zum MP_LOGOS Skript ###########################
 #
-# Alle Einstellungen zum Skript werden hier eingetragen. Diese Datei (mp_logos.conf) am
-# besten nach ~/etc kopieren. Das Skript findet sie dann automatisch.
+# Alle Einstellungen zum Skript werden hier eingetragen. Diese Datei (Picons.cz2VDR.conf.conf)
+# am besten nach ~/etc kopieren. Das Skript findet sie dann automatisch.
 #
 #########################################################################################
 
@@ -12,10 +12,10 @@
 # die Kanallogos lädt. Verzeichnis ohne abschließendes '/'
 LOGODIR='/var/lib/vdr/channellogos'  # Logos für VDR-Skin
 
-# Kanalliste vom VDR.
+# Kanalliste vom VDR
 CHANNELSCONF='/var/lib/vdr/channels.conf'  # VDR's Kanalliste
 
-# Logotyp (transparen ,transparentdark)
+# Logotyp (transparent ,transparentdark)
 LOGO_TYPE='transparent'
 
 # Logogröße (220x132)
