@@ -1,6 +1,6 @@
 ########################### KONFIGURATION zum MP_LOGOS Skript ###########################
 #
-# Alle Einstellungen zum Skript werden hier eingetragen. Diese Datei (Picons.cz2VDR.conf.conf)
+# Alle Einstellungen zum Skript werden hier eingetragen. Diese Datei (Picon.cz2VDR.conf)
 # am besten nach ~/etc kopieren. Das Skript findet sie dann automatisch.
 #
 #########################################################################################
@@ -15,17 +15,17 @@ LOGODIR='/var/lib/vdr/channellogos'  # Logos für VDR-Skin
 # Kanalliste vom VDR
 CHANNELSCONF='/var/lib/vdr/channels.conf'  # VDR's Kanalliste
 
+# Werte für LOGO_TYPE, LOGO_SIZE und LOGO_PACKAGE können unter https://picon.cz/plugin/
+# eingesehen werden. Momentan vom Skript unterstützte Werte in Klammern
+
 # Logotyp (transparent ,transparentdark)
 LOGO_TYPE='transparent'
 
 # Logogröße (220x132)
 LOGO_SIZE='220x132'
 
-# Logopaket
+# Logopaket (Alle - Siehe https://picon.cz/download-picons/picon-transparent-220x132)
 LOGO_PACKAGE=(19.2E)
-
-# Ausgaben des Skripts via logger oder echo, wenn die Variable auskommentiert ist
-LOGGER='logger'                        # Logger oder auskommentieren für 'echo'
 
 # Logdatei. Wenn nicht gewünscht einfach auskommentiern
 LOGFILE="/var/log/${SELF_NAME%.*}.log" # Log-Datei
