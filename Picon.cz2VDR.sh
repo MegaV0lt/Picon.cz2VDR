@@ -9,7 +9,7 @@
 # Die Logos liegen im PNG-Format vor.
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden.
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=220714
+VERSION=220726
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen.
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -166,7 +166,9 @@ done  # LOGO_PACKAGE
 
 # Logos optimieren
 f_log INFO "Optimiere Logos mit pngquant…"
-pngquant --force --strip --ext .png "${LOGO_PATH}/*.png" >> "${LOGFILE:-/dev/null}"
+for logo in "${LOGO_PATH}/*.png" ; do
+  pngquant --force --strip --ext .png "$logo" >> "${LOGFILE:-/dev/null}"
+done
 
 # Kanalname den Picon zuordnen
 for i in "${!channelsconf[@]}" ; do
@@ -230,7 +232,7 @@ for i in "${!channelsconf[@]}" ; do
     fi  # -e servicename.png
   else
     f_log WARN "Logo ${LOGO_PATH}/${serviceref}.png nicht gefunden (${vdr_channelname})"
-    ((nologo++))
+    nologo+=("$vdr_channelname -> $serviceref")  # Nicht gefundene Logos
   fi
 done  # CHANNELSCONF
 
@@ -245,11 +247,13 @@ if [[ -n "$LOGO_HIST" ]] ; then
   printf '%s\n' "${logohist[@]}" | sort --unique > "$LOGO_HIST"  # Neue DB schreiben
 fi
 
+printf '%s\n' "${nologo[@]}" | sort --unique > 'No_Logo.txt'  # Nicht gefundene Logos
+
 # Leere Verzeichnisse löschen
 find "$LOGODIR" -type d -empty -delete
 
 # Statistik anzeigen
-[[ "$nologo" -gt 0 ]] && f_log "==> $nologo Kanäle ohne Logo"
+[[ "${#nologo[@]}" -gt 0 ]] && f_log "==> ${#nologo[@]} Kanäle ohne Logo"
 [[ "$double" -gt 0 ]] && f_log "==> $double Kanäle mit unterschiedlichen Logos"
 [[ "$obs" -gt 0 || "$bl" -gt 0 ]] && f_log "==> Übersprungen: 'OBSOLETE' (${obs:-0}), '.' (${bl:-0})"
 f_log "==> ${symlink:-0} verlinkte Logos"
