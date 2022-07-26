@@ -166,7 +166,7 @@ done  # LOGO_PACKAGE
 
 # Logos optimieren
 f_log INFO "Optimiere Logos mit pngquant…"
-for logo in "${LOGO_PATH}/*.png" ; do
+for logo in "${LOGO_PATH}"/*.png ; do
   pngquant --force --strip --ext .png "$logo" >> "${LOGFILE:-/dev/null}"
 done
 
