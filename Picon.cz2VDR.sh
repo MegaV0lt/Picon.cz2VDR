@@ -149,6 +149,7 @@ for package in "${LOGO_PACKAGE[@]}" ; do
 
   # Prüfen, ob geladene Logopakete älter als 1 Woche sind
   if [[ $(stat --format=%Y "${SRC_DIR}/${LOGO_ARCH}.7z" 2>/dev/null) -le $((NOW - 60*60*24*7)) ]] ; then
+    optimize='true'  # Nur bei neuen Logos optimieren
     f_log INFO "Lade Logo-Paket für ${package}…"
 
     # Laden der Datei
@@ -164,10 +165,10 @@ for package in "${LOGO_PACKAGE[@]}" ; do
   fi  # stat
 done  # LOGO_PACKAGE
 
-# Logos optimieren
-f_log INFO "Optimiere Logos mit pngquant…"
-for logo in "${LOGO_PATH}"/*.png ; do
-  pngquant --force --strip --ext .png "$logo" >> "${LOGFILE:-/dev/null}"
+if [[ "$optimize" == 'true' ]] ; then  # Logos optimieren
+  f_log INFO "Optimiere Logos mit pngquant…"
+  for logo in "${LOGO_PATH}"/*.png ; do
+    pngquant --ext .png --force --skip-if-lager --strip "$logo" >> "${LOGFILE:-/dev/null}"
 done
 
 # Kanalname den Picon zuordnen
@@ -247,7 +248,7 @@ if [[ -n "$LOGO_HIST" ]] ; then
   printf '%s\n' "${logohist[@]}" | sort --unique > "$LOGO_HIST"  # Neue DB schreiben
 fi
 
-printf '%s\n' "${nologo[@]}" | sort --unique > 'No_Logo.txt'  # Nicht gefundene Logos
+printf '%s\n' "${nologo[@]}" | sort --unique > "${SRC_DIR}/No_Logo.txt"  # Nicht gefundene Logos
 
 # Leere Verzeichnisse löschen
 find "$LOGODIR" -type d -empty -delete
