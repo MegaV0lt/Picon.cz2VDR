@@ -9,7 +9,7 @@
 # Die Logos liegen im PNG-Format vor.
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden.
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=220726
+VERSION=220727
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen.
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -75,8 +75,12 @@ DL_INDEX+=(
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   local logger=(logger --tag "$SELF_NAME") msg="${*:2}"
   case "${1^^}" in
-    'ERR'*|'FATAL') [[ -t 2 ]] && { echo -e "$msgERR ${msg:-$1}${nc}" ;} \
-                      || "${logger[@]}" --priority user.err "$*" ;;
+    'ERR'*|'FATAL') if [[ -t 2 ]] ; then
+                      echo -e "$msgERR ${msg:-$1}${nc}"
+                    else
+                      "${logger[@]}" --priority user.err "$*"
+                      echo "FEHLER: ${msg:-$1}"  # Für cron eMails
+                    fi ;;
     'WARN'*) [[ -t 1 ]] && { echo -e "$msgWRN ${msg:-$1}" ;} || "${logger[@]}" "$*" ;;
     'DEBUG') [[ -t 1 ]] && { echo -e "\e[1m${msg:-$1}${nc}" ;} || "${logger[@]}" "$*" ;;
     'INFO'*) [[ -t 1 ]] && { echo -e "$msgINF ${msg:-$1}" ;} || "${logger[@]}" "$*" ;;
@@ -169,7 +173,8 @@ if [[ "$optimize" == 'true' ]] ; then  # Logos optimieren
   f_log INFO "Optimiere Logos mit pngquant…"
   for logo in "${LOGO_PATH}"/*.png ; do
     pngquant --ext .png --force --skip-if-lager --strip "$logo" >> "${LOGFILE:-/dev/null}"
-done
+  done
+fi
 
 # Kanalname den Picon zuordnen
 for i in "${!channelsconf[@]}" ; do
