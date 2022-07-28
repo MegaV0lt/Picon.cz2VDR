@@ -18,7 +18,7 @@ CHANNELSCONF='/var/lib/vdr/channels.conf'  # VDR's Kanalliste
 # Werte für LOGO_TYPE, LOGO_SIZE und LOGO_PACKAGE können unter https://picon.cz/plugin/
 # eingesehen werden. Momentan vom Skript unterstützte Werte in Klammern
 
-# Logotyp (transparent ,transparentdark)
+# Logotyp (transparent ,transparentdark, black)
 LOGO_TYPE='transparent'
 
 # Logogröße (220x132)

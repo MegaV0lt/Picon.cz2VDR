@@ -9,7 +9,7 @@
 # Die Logos liegen im PNG-Format vor.
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden.
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=220727
+VERSION=220728
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen.
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -70,6 +70,28 @@ DL_INDEX+=(
 [transparentdark_220x132_13.0E]=4602 [transparentdark_220x132_12.5W]=4600 [transparentdark_220x132_11.0W]=4598
 [transparentdark_220x132_10.0E]=4596 [transparentdark_220x132_1.9E]=4572 [transparentdark_220x132_1.0W]=4570
 [transparentdark_220x132_0.8W]=4568)
+DL_INDEX+=(
+[black_220x132_skylink]=3418 [black_220x132_freeSAT]=3414 [black_220x132_digiczsk]=3408
+[black_220x132_antiksat]=3406 [black_220x132_dvbtCZSK]=3412 [black_220x132_DTTitaly]=3410
+[black_220x132_9.0E]=3322 [black_220x132_80.0E]=3402 [black_220x132_85.0E]=
+[black_220x132_8.0W]=3320 [black_220x132_75.0E]=3400 [black_220x132_74.9E]=3398
+[black_220x132_70.5E]=3396 [black_220x132_7.0W]=3318 [black_220x132_7.0E]=3316
+[black_220x132_68.5E]=3394 [black_220x132_66.0E]=3392 [black_220x132_62.0E]=3390
+[black_220x132_56.0E]=3388 [black_220x132_54.9E]=3386 [black_220x132_53.0E]=3384
+[black_220x132_52.5E]=3382 [black_220x132_52.0E]=3380 [black_220x132_51.5E]=3378
+[black_220x132_5.0W]=3314 [black_220x132_46.0E]=3376 [black_220x132_45.0W]=3374
+[black_220x132_45.0E]=3372 [black_220x132_42.0E]=3370 [black_220x132_4.9E]=3312
+[black_220x132_4.8E]=3310 [black_220x132_4.0W]=3308 [black_220x132_39.0E]=3368
+[black_220x132_36.0E]=3366 [black_220x132_33.0E]=3364 [black_220x132_31.5E]=3362
+[black_220x132_30.5E]=3360 [black_220x132_30.0W]=3358 [black_220x132_3.1E]=3306
+[black_220x132_3.0W]=3304 [black_220x132_3.0E]=3302 [black_220x132_28.2E]=3356
+[black_220x132_27.5W]=3354 [black_220x132_26.0E]=3352 [black_220x132_24.5W]=3350
+[black_220x132_23.5E]=3348 [black_220x132_22.0W]=3346 [black_220x132_21.5E]=3344
+[black_220x132_PolandDTT]=3342 [black_220x132_19.2E]=3340 [black_220x132_18.0W]=
+[black_220x132_16.0E]=3336 [black_220x132_15.0W]=3334 [black_220x132_14.0W]=3332
+[black_220x132_13.0E]=3330 [black_220x132_12.5W]= [black_220x132_11.0W]=3326
+[black_220x132_10.0E]=3324 [black_220x132_1.9E]=3300 [black_220x132_1.0W]=3298
+[black_220x132_0.8W]=3296)
 
 ### Funktionen
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
@@ -148,7 +170,7 @@ wget "${WGET_OPT[@]}" --save-cookies="${SRC_DIR}/cookie.txt" \
 for package in "${LOGO_PACKAGE[@]}" ; do
   # Archivname und Downloadlink festlegen
   LOGO_ARCH="${LOGO_TYPE}_${LOGO_SIZE}_${package}"  # transparent_220x132_19.2E
-  DL_URL="${DL_INDEX[${LOGO_ARCH}]}"
+  DL_URL="${DL_INDEX[${LOGO_ARCH}]}"                # 1125
   [[ -z "$DL_URL" ]] && { f_log ERR "Download-Link für $LOGO_ARCH nicht gefunden!" ; exit 1 ;}
 
   # Prüfen, ob geladene Logopakete älter als 1 Woche sind
