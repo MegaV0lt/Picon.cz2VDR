@@ -154,7 +154,7 @@ done  # LOGO_PACKAGE
 if [[ "$optimize" == 'true' ]] ; then  # Logos optimieren
   f_log INFO "Optimiere Logos mit pngquant…"
   for logo in "${LOGO_PATH}"/*.png ; do
-    pngquant --ext .png --force --skip-if-lager --strip "$logo" >> "${LOGFILE:-/dev/null}"
+    pngquant --ext .png --force --skip-if-larger --strip "$logo" >> "${LOGFILE:-/dev/null}"
   done
 fi
 
