@@ -1,4 +1,4 @@
-######################## KONFIGURATION zum Skript Picon.ct2VDR ##########################
+######################## KONFIGURATION zum Skript Picon.cz2VDR ##########################
 #
 # Alle Einstellungen zum Skript werden hier eingetragen. Diese Datei (Picon.cz2VDR.conf)
 # am besten nach ~/etc kopieren. Das Skript findet sie dann automatisch.
@@ -16,15 +16,15 @@ LOGODIR='/var/lib/vdr/channellogos'  # Logos für VDR-Skin
 CHANNELSCONF='/var/lib/vdr/channels.conf'  # VDR's Kanalliste
 
 # Werte für LOGO_TYPE, LOGO_SIZE und LOGO_PACKAGE können unter https://picon.cz/plugin/
-# eingesehen werden. Momentan vom Skript unterstützte Werte in Klammern
+# eingesehen werden.
 
-# Logotyp (transparent ,transparentdark, black)
+# Logotyp (transparent ,transparentdark, black, …)
 LOGO_TYPE='transparent'
 
-# Logogröße (220x132)
+# Logogröße (220x132, …)
 LOGO_SIZE='220x132'
 
-# Logopaket (Alle - Siehe https://picon.cz/download-picons/picon-transparent-220x132)
+# Logopaket (19.2E, 13.0E, … - Siehe https://picon.cz/download-picons/picon-transparent-220x132)
 LOGO_PACKAGE=(19.2E)
 
 # Logdatei. Wenn nicht gewünscht einfach auskommentiern

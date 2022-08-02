@@ -9,7 +9,7 @@
 # Die Logos liegen im PNG-Format vor.
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden.
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=220728
+VERSION=220801
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen.
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -18,80 +18,13 @@ VERSION=220728
 SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 SELF_NAME="${SELF##*/}"
 PICON_URL='https://picon.cz/download-picons'  #/picon-transparent-220x132/'
-USER_AGENT='Mozilla/5.0 (Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0'
+USER_AGENT='Mozilla/5.0 (Linux x86_64; rv:103.0) Gecko/20100101 Firefox/103.0'
 WGET_OPT=('--cookies=on' --keep-session-cookies --quiet "--user-agent=$USER_AGENT")
 msgERR='\e[1;41m FEHLER! \e[0;1m' ; nc='\e[0m'   # Anzeige "FEHLER!"
 msgINF='\e[42m \e[0m' ; msgWRN='\e[103m \e[0m'   # " " mit grünem/gelben Hintergrund
 printf -v RUNDATE '%(%d.%m.%Y %R)T' -1  # Aktuelles Datum und Zeit
 printf -v NOW '%(%s)T' -1               # Aktuelle Zeit in Sekunden
-
-# Download-Links für die Logopakete (Transparent 220x132, ...)
-declare -A DL_INDEX=(
-[transparent_220x132_skylink]=1211 [transparent_220x132_freeSAT]=1206 [transparent_220x132_digiczsk]=1199
-[transparent_220x132_antiksat]=1197 [transparent_220x132_dvbtCZSK]=1204 [transparent_220x132_DTTitaly]=1202
-[transparent_220x132_9.0E]=1094 [transparent_220x132_81.5E]=1195 [transparent_220x132_85.0E]=1193
-[transparent_220x132_8.0W]=1092 [transparent_220x132_75.0E]=1190 [transparent_220x132_74.9E]=1188
-[transparent_220x132_70.5E]=1186 [transparent_220x132_7.0W]=1090 [transparent_220x132_7.0E]=1087
-[transparent_220x132_68.5E]=1184 [transparent_220x132_66.0E]=1182 [transparent_220x132_62.0E]=1180
-[transparent_220x132_56.0E]=1177 [transparent_220x132_54.9E]=1175 [transparent_220x132_53.0E]=1173
-[transparent_220x132_52.5E]=1171 [transparent_220x132_52.0E]=1168 [transparent_220x132_51.5E]=1166
-[transparent_220x132_5.0W]=1085 [transparent_220x132_46.0E]=1164 [transparent_220x132_45.0W]=1161
-[transparent_220x132_45.0E]=1159 [transparent_220x132_42.0E]=1157 [transparent_220x132_4.9E]=1083
-[transparent_220x132_4.8E]=1081 [transparent_220x132_4.0W]=1079 [transparent_220x132_39.0E]=1155
-[transparent_220x132_36.0E]=1153 [transparent_220x132_33.0E]=1151 [transparent_220x132_31.5E]=1149
-[transparent_220x132_30.5E]=1147 [transparent_220x132_30.0W]=1145 [transparent_220x132_3.1E]=1077
-[transparent_220x132_3.0W]=1074 [transparent_220x132_3.0E]=1072 [transparent_220x132_28.2E]=1143
-[transparent_220x132_27.5W]=1141 [transparent_220x132_26.0E]=1139 [transparent_220x132_24.5W]=1135
-[transparent_220x132_23.5E]=1133 [transparent_220x132_22.0W]=1131 [transparent_220x132_21.5E]=1129
-[transparent_220x132_PolandDTT]=1127 [transparent_220x132_19.2E]=1125 [transparent_220x132_18.0W]=1123
-[transparent_220x132_16.0E]=1121 [transparent_220x132_15.0W]=1119 [transparent_220x132_14.0W]=1103
-[transparent_220x132_13.0E]=1105 [transparent_220x132_12.5W]=1101 [transparent_220x132_11.0W]=1099
-[transparent_220x132_10.0E]=1096 [transparent_220x132_1.9E]=1070 [transparent_220x132_1.0W]=1068
-[transparent_220x132_0.8W]=1066)
-DL_INDEX+=(
-[transparentdark_220x132_skylink]=4690 [transparentdark_220x132_freeSAT]=4986 [transparentdark_220x132_digiczsk]=4680
-[transparentdark_220x132_antiksat]=4678 [transparentdark_220x132_dvbtCZSK]=4684 [transparentdark_220x132_DTTitaly]=4682
-[transparentdark_220x132_9.0E]=4594 [transparentdark_220x132_81.5E]=4676 [transparentdark_220x132_85.0E]=4674
-[transparentdark_220x132_8.0W]=4592 [transparentdark_220x132_75.0E]=4672 [transparentdark_220x132_74.9E]=4670
-[transparentdark_220x132_70.5E]=4668 [transparentdark_220x132_7.0W]=4590 [transparentdark_220x132_7.0E]=4588
-[transparentdark_220x132_68.5E]=4666 [transparentdark_220x132_66.0E]=4664 [transparentdark_220x132_62.0E]=4662
-[transparentdark_220x132_56.0E]=4660 [transparentdark_220x132_54.9E]=4658 [transparentdark_220x132_53.0E]=4656
-[transparentdark_220x132_52.5E]=4654 [transparentdark_220x132_52.0E]=4652 [transparentdark_220x132_51.5E]=4650
-[transparentdark_220x132_5.0W]=4586 [transparentdark_220x132_46.0E]=4648 [transparentdark_220x132_45.0W]=4646
-[transparentdark_220x132_45.0E]=4644 [transparentdark_220x132_42.0E]=4642 [transparentdark_220x132_4.9E]=4584
-[transparentdark_220x132_4.8E]=4582 [transparentdark_220x132_4.0W]=4580 [transparentdark_220x132_39.0E]=4640
-[transparentdark_220x132_36.0E]=4638 [transparentdark_220x132_33.0E]=4636 [transparentdark_220x132_31.5E]=4634
-[transparentdark_220x132_30.5E]=4632 [transparentdark_220x132_30.0W]=4630 [transparentdark_220x132_3.1E]=4578
-[transparentdark_220x132_3.0W]=4576 [transparentdark_220x132_3.0E]=4574 [transparentdark_220x132_28.2E]=4628
-[transparentdark_220x132_27.5W]=4626 [transparentdark_220x132_26.0E]=4624 [transparentdark_220x132_24.5W]=4622
-[transparentdark_220x132_23.5E]=4620 [transparentdark_220x132_22.0W]=4618 [transparentdark_220x132_21.5E]=4616
-[transparentdark_220x132_PolandDTT]=4614 [transparentdark_220x132_19.2E]=4612 [transparentdark_220x132_18.0W]=4610
-[transparentdark_220x132_16.0E]=4608 [transparentdark_220x132_15.0W]=4606 [transparentdark_220x132_14.0W]=4604
-[transparentdark_220x132_13.0E]=4602 [transparentdark_220x132_12.5W]=4600 [transparentdark_220x132_11.0W]=4598
-[transparentdark_220x132_10.0E]=4596 [transparentdark_220x132_1.9E]=4572 [transparentdark_220x132_1.0W]=4570
-[transparentdark_220x132_0.8W]=4568)
-DL_INDEX+=(
-[black_220x132_skylink]=3418 [black_220x132_freeSAT]=3414 [black_220x132_digiczsk]=3408
-[black_220x132_antiksat]=3406 [black_220x132_dvbtCZSK]=3412 [black_220x132_DTTitaly]=3410
-[black_220x132_9.0E]=3322 [black_220x132_80.0E]=3402 [black_220x132_85.0E]=
-[black_220x132_8.0W]=3320 [black_220x132_75.0E]=3400 [black_220x132_74.9E]=3398
-[black_220x132_70.5E]=3396 [black_220x132_7.0W]=3318 [black_220x132_7.0E]=3316
-[black_220x132_68.5E]=3394 [black_220x132_66.0E]=3392 [black_220x132_62.0E]=3390
-[black_220x132_56.0E]=3388 [black_220x132_54.9E]=3386 [black_220x132_53.0E]=3384
-[black_220x132_52.5E]=3382 [black_220x132_52.0E]=3380 [black_220x132_51.5E]=3378
-[black_220x132_5.0W]=3314 [black_220x132_46.0E]=3376 [black_220x132_45.0W]=3374
-[black_220x132_45.0E]=3372 [black_220x132_42.0E]=3370 [black_220x132_4.9E]=3312
-[black_220x132_4.8E]=3310 [black_220x132_4.0W]=3308 [black_220x132_39.0E]=3368
-[black_220x132_36.0E]=3366 [black_220x132_33.0E]=3364 [black_220x132_31.5E]=3362
-[black_220x132_30.5E]=3360 [black_220x132_30.0W]=3358 [black_220x132_3.1E]=3306
-[black_220x132_3.0W]=3304 [black_220x132_3.0E]=3302 [black_220x132_28.2E]=3356
-[black_220x132_27.5W]=3354 [black_220x132_26.0E]=3352 [black_220x132_24.5W]=3350
-[black_220x132_23.5E]=3348 [black_220x132_22.0W]=3346 [black_220x132_21.5E]=3344
-[black_220x132_PolandDTT]=3342 [black_220x132_19.2E]=3340 [black_220x132_18.0W]=
-[black_220x132_16.0E]=3336 [black_220x132_15.0W]=3334 [black_220x132_14.0W]=3332
-[black_220x132_13.0E]=3330 [black_220x132_12.5W]= [black_220x132_11.0W]=3326
-[black_220x132_10.0E]=3324 [black_220x132_1.9E]=3300 [black_220x132_1.0W]=3298
-[black_220x132_0.8W]=3296)
+declare -A DL_INDEX                     # Download-Links für die Logopakete
 
 ### Funktionen
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
@@ -111,6 +44,32 @@ f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   [[ -n "$LOGFILE" ]] && printf '%(%d.%m.%Y %T)T: %b\n' -1 "$*" 2>/dev/null >> "$LOGFILE"  # Log in Datei
 }
 
+f_extract_links() {
+  local name url tmpsrc='/tmp/~websrc.htm' websrc="$1"
+  local url_before='picon.cz/download/' url_after='/' name_before='picon' name_after='_by_chocholousek.7z'
+  # Seite laden
+  if [[ ! "$websrc" =~ picon-transparent-220x132 ]] ; then
+    websrc="${websrc/picon-/picon}"  # Workaround
+  fi
+  wget "${WGET_OPT[@]}" --load-cookies="${SRC_DIR}/cookie.txt" --referer="$PICON_URL" \
+    --output-document="$tmpsrc" "$websrc"
+
+  while read -r ; do  # URL in 1. Zeile, NAME in der 2. Zeile
+    if [[ "$REPLY" =~ picon.cz/download/ ]] ; then  # In der Zeile enthalten
+      url="${REPLY/*${url_before}}" ; url="${url/${url_after}*}"  # 1125
+      continue
+    fi
+    if [[ "$REPLY" =~ by_chocholousek.7z ]] ; then  # In der Zeile enthalten
+      name="${REPLY/*${name_before}}" ; name="${name/${name_after}*}" # simpleblack-220x132-30.0W
+      if [[ -n "$url" ]] ; then
+        DL_INDEX+=([${name}]=${url}) #; echo "[${name}]=${url}"
+        unset -v url
+      fi
+    fi
+  done < "$tmpsrc"
+  exit
+}
+
 ### Start
 SCRIPT_TIMING[0]=$SECONDS  # Startzeit merken (Sekunden)
 
@@ -122,8 +81,7 @@ while getopts ":c:" opt ; do
        else
          f_log ERR "Fehler! Die angegebene Konfigurationsdatei fehlt! (\"${CONFIG}\")"
          exit 1
-       fi
-    ;;
+       fi ;;
     ?) ;;
   esac
 done
@@ -167,18 +125,21 @@ find "$LOGODIR" -type l -delete
 wget "${WGET_OPT[@]}" --save-cookies="${SRC_DIR}/cookie.txt" \
   --output-document="${SRC_DIR}/download-picons.html" "${PICON_URL}/"
 
+# Seite mit den Links laden und Links extrahieren
+f_extract_links "${PICON_URL}/picon-${LOGO_TYPE}-${LOGO_SIZE}"
+
 for package in "${LOGO_PACKAGE[@]}" ; do
   # Archivname und Downloadlink festlegen
-  LOGO_ARCH="${LOGO_TYPE}_${LOGO_SIZE}_${package}"  # transparent_220x132_19.2E
+  LOGO_ARCH="${LOGO_TYPE}-${LOGO_SIZE}-${package}"  # transparent-220x132-19.2E
   DL_URL="${DL_INDEX[${LOGO_ARCH}]}"                # 1125
   [[ -z "$DL_URL" ]] && { f_log ERR "Download-Link für $LOGO_ARCH nicht gefunden!" ; exit 1 ;}
 
   # Prüfen, ob geladene Logopakete älter als 1 Woche sind
   if [[ $(stat --format=%Y "${SRC_DIR}/${LOGO_ARCH}.7z" 2>/dev/null) -le $((NOW - 60*60*24*7)) ]] ; then
     optimize='true'  # Nur bei neuen Logos optimieren
-    f_log INFO "Lade Logo-Paket für ${package}…"
 
     # Laden der Datei
+    f_log INFO "Lade Logo-Paket für ${package}…"
     wget "${WGET_OPT[@]}" --load-cookies="${SRC_DIR}/cookie.txt" --referer="$PICON_URL" \
       --output-document="${SRC_DIR}/${LOGO_ARCH}.7z" "https://picon.cz/download/${DL_URL}"
 
@@ -198,7 +159,7 @@ if [[ "$optimize" == 'true' ]] ; then  # Logos optimieren
   done
 fi
 
-# Kanalname den Picon zuordnen
+# Kanalname den Picon zuordnen und verlinken
 for i in "${!channelsconf[@]}" ; do
   [[ "${channelsconf[i]:0:1}" == : ]] && { ((grp++)) ; continue ;}     # Kanalgruppe
   [[ "${channelsconf[i]}" =~ OBSOLETE ]] && { ((obs++)) ; continue ;}  # Als 'OBSOLETE' markierter Kanal
