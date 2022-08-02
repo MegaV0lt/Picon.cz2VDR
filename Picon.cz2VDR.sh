@@ -67,7 +67,6 @@ f_extract_links() {
       fi
     fi
   done < "$tmpsrc"
-  exit
 }
 
 ### Start
