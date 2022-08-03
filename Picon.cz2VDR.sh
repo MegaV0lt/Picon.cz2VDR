@@ -9,7 +9,7 @@
 # Die Logos liegen im PNG-Format vor.
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden.
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=220801
+VERSION=220803
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen.
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -56,6 +56,7 @@ f_extract_links() {
 
   while read -r ; do  # URL in 1. Zeile, NAME in der 2. Zeile
     if [[ "$REPLY" =~ picon.cz/download/ ]] ; then  # In der Zeile enthalten
+      [[ -n "$url" ]] && f_log WARN "Download-Link ohne Name gefunden! (/download/${url})"
       url="${REPLY/*${url_before}}" ; url="${url/${url_after}*}"  # 1125
       continue
     fi
@@ -63,7 +64,9 @@ f_extract_links() {
       name="${REPLY/*${name_before}}" ; name="${name/${name_after}*}" # simpleblack-220x132-30.0W
       if [[ -n "$url" ]] ; then
         DL_INDEX+=([${name}]=${url}) #; echo "[${name}]=${url}"
-        unset -v url
+        unset -v 'url'
+      else
+        f_log WARN "Kein Download-Link für Paket $name gefunden!"
       fi
     fi
   done < "$tmpsrc"
