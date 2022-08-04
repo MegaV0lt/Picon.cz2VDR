@@ -9,7 +9,7 @@
 # Die Logos liegen im PNG-Format vor.
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden.
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=220803
+VERSION=220804
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen.
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -108,6 +108,16 @@ fi
 f_log INFO "==> $RUNDATE - $SELF_NAME #${VERSION} - Start…"
 f_log INFO "$CONFLOADED Konfiguration: ${CONFIG}"
 
+# Benötigte Programme vorhanden?
+needprogs=(7z bc find sort wget)
+for prog in "${needprogs[@]}" ; do
+  type "$prog" &>/dev/null || MISSING+=("$prog")
+done
+if [[ -n "${MISSING[*]}" ]] ; then  # Fehlende Programme anzeigen
+  echo -e "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
+  f_exit 1
+fi
+
 SRC_DIR="${LOGODIR}/.source"  # Verzeichnis für PIcon Pakete und Cookies
 LOGO_PATH="${SRC_DIR}/Logos"  # Alle Logos in das gleiche Verzeichnis
 if [[ ! -d "$LOGO_PATH" ]] ; then
@@ -155,10 +165,14 @@ for package in "${LOGO_PACKAGE[@]}" ; do
 done  # LOGO_PACKAGE
 
 if [[ "$optimize" == 'true' ]] ; then  # Logos optimieren
-  f_log INFO "Optimiere Logos mit pngquant…"
-  for logo in "${LOGO_PATH}"/*.png ; do
-    pngquant --ext .png --force --skip-if-larger --strip "$logo" >> "${LOGFILE:-/dev/null}"
-  done
+  if type pngquant &>/dev/null ; then
+    f_log INFO "Optimiere Logos mit pngquant…"
+    for logo in "${LOGO_PATH}"/*.png ; do
+      pngquant --ext .png --force --skip-if-larger --strip "$logo" >> "${LOGFILE:-/dev/null}"
+    done
+  else
+    flog WARN 'pngquant nicht gefunden. Logos werden nicht optimiert!'
+  fi
 fi
 
 # Kanalname den Picon zuordnen und verlinken
