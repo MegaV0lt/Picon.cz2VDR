@@ -109,7 +109,7 @@ f_log INFO "==> $RUNDATE - $SELF_NAME #${VERSION} - Start…"
 f_log INFO "$CONFLOADED Konfiguration: ${CONFIG}"
 
 # Benötigte Programme vorhanden?
-needprogs=(7z bc find sort wget)
+needprogs=(7z bc find sort stat wget)
 for prog in "${needprogs[@]}" ; do
   type "$prog" &>/dev/null || MISSING+=("$prog")
 done
@@ -117,6 +117,11 @@ if [[ -n "${MISSING[*]}" ]] ; then  # Fehlende Programme anzeigen
   echo -e "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
   f_exit 1
 fi
+
+# Benötigte Variablen prüfen
+for var in CHANNELSCONF LOGODIR ; do
+  [[ -z "${!var}" ]] && { f_log ERROR "Variable $var ist nicht gesetzt!" ; exit 1 ;}
+done
 
 SRC_DIR="${LOGODIR}/.source"  # Verzeichnis für PIcon Pakete und Cookies
 LOGO_PATH="${SRC_DIR}/Logos"  # Alle Logos in das gleiche Verzeichnis
@@ -129,6 +134,10 @@ if [[ -f "$CHANNELSCONF" ]] ; then
 else
   f_log ERR "Datei $CHANNELSCONF nicht gefunden!" ; exit 1
 fi
+
+# Vorgaben
+: "${LOGO_TYPE:=transparent}" ; : "${LOGO_SIZE:=220x132}"
+[[ -z "${LOGO_PACKAGE[*]}" ]] && LOGO_PACKAGE=(19.2E)
 
 # Alle Symlinks im Logoverzeichnis löschen
 find "$LOGODIR" -type l -delete

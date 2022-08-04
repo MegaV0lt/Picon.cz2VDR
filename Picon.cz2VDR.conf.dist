@@ -19,13 +19,13 @@ CHANNELSCONF='/var/lib/vdr/channels.conf'  # VDR's Kanalliste
 # eingesehen werden.
 
 # Logotyp (transparent ,transparentdark, black, …)
-LOGO_TYPE='transparent'
+LOGO_TYPE='transparent'  # Vorgabe: transparent
 
 # Logogröße (220x132, …)
-LOGO_SIZE='220x132'
+LOGO_SIZE='220x132'      # Vorgabe: 220x132
 
 # Logopaket (19.2E, 13.0E, … - Siehe https://picon.cz/download-picons/picon-transparent-220x132)
-LOGO_PACKAGE=(19.2E)
+LOGO_PACKAGE=(19.2E)     # Vorgabe: 19.2E
 
 # Logdatei. Wenn nicht gewünscht einfach auskommentiern
 LOGFILE="/var/log/${SELF_NAME%.*}.log" # Log-Datei
