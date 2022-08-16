@@ -4,7 +4,7 @@ Picons für den VDR
 
 Skript zum erzeugen und verlinken der PICON-Kanallogos (Enigma2)
 
-Das benötigten Picons (https://picon.cz) werden vom Skript lokal in einem Unterordner auf die Festplatte gespeichert und bei jedem Start aktualisiert (Maximal ein mal pro Woche).
+Die benötigten Picons (https://picon.cz) werden vom Skript lokal in einem Unterordner auf die Festplatte gespeichert und bei jedem Start aktualisiert (Maximal ein mal pro Woche).
 
 Die Dateinamen der Picons passen nicht zum VDR-Schema. Darum erstellt das Skript mit hilfe der "channels.conf" Symlinks zu den Logos.
 
