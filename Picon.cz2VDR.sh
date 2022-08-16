@@ -9,7 +9,7 @@
 # Die Logos liegen im PNG-Format vor.
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden.
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=220804
+VERSION=220816
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen.
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -263,8 +263,10 @@ fi
 
 printf '%s\n' "${nologo[@]}" | sort --unique > "${SRC_DIR}/No_Logo.txt"  # Nicht gefundene Logos
 
-# Leere Verzeichnisse löschen
-find "$LOGODIR" -type d -empty -delete
+# Aufräumen
+f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
+find "$LOGODIR" -type d -empty -print -delete >> "${LOGFILE:-/dev/null}"  # Leere Verzeichnisse löschen
+find "$LOGO_PATH" -type f -name '*.png' -mtime +30 -print -delete >> "${LOGFILE:-/dev/null}"  # Alte Logos
 
 # Statistik anzeigen
 [[ "${#nologo[@]}" -gt 0 ]] && f_log "==> ${#nologo[@]} Kanäle ohne Logo"
