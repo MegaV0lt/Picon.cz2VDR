@@ -24,7 +24,8 @@ LOGO_TYPE='transparent'  # Vorgabe: transparent
 # Logogröße (220x132, …)
 LOGO_SIZE='220x132'      # Vorgabe: 220x132
 
-# Logopaket (19.2E, 13.0E, … - Siehe https://picon.cz/download-picons/picon-transparent-220x132)
+# Logopaket (19.2E 13.0E … - Siehe https://picon.cz/download-picons/picon-transparent-220x132)
+# Beispiel bei Empfang von 2 Satelliten: LOGO_PACKAGE=(19.2E 9.0E)
 LOGO_PACKAGE=(19.2E)     # Vorgabe: 19.2E
 
 # Logdatei. Wenn nicht gewünscht einfach auskommentiern
