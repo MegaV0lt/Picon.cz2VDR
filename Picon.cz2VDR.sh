@@ -18,7 +18,7 @@ VERSION=220816
 SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Eigener Pfad (besseres $0)
 SELF_NAME="${SELF##*/}"
 PICON_URL='https://picon.cz/download-picons'  #/picon-transparent-220x132/'
-USER_AGENT='Mozilla/5.0 (Linux x86_64; rv:103.0) Gecko/20100101 Firefox/103.0'
+USER_AGENT='Mozilla/5.0 (Linux x86_64; rv:103.0) Gecko/20100101 (vdr-picon-script) Firefox/103.0'
 WGET_OPT=('--cookies=on' --keep-session-cookies --quiet "--user-agent=$USER_AGENT")
 msgERR='\e[1;41m FEHLER! \e[0;1m' ; nc='\e[0m'   # Anzeige "FEHLER!"
 msgINF='\e[42m \e[0m' ; msgWRN='\e[103m \e[0m'   # " " mit grünem/gelben Hintergrund
