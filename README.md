@@ -30,6 +30,8 @@ Abmessungen:
 
 50×30, 96×64, 100×60, 132×46, 150×90, 220×132, 400×170, 400×240 und 500×300
 
-Übersicht: https://picon.cz/plugin/
-Support für dei Logos: https://www.linuxsat-support.com/thread/124700-picons-by-chocholou%C5%A1ek/ (Nur Englisch)
-Picons von Chocholoušek (https://picon.cz)
+**Übersicht: https://picon.cz/plugin/
+
+**Support für dei Logos: https://www.linuxsat-support.com/thread/124700-picons-by-chocholou%C5%A1ek/ (Nur Englisch)
+
+**Picons von Chocholoušek (https://picon.cz)
