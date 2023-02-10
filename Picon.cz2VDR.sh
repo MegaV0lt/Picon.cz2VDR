@@ -180,7 +180,7 @@ if [[ "$optimize" == 'true' ]] ; then  # Logos optimieren
       pngquant --ext .png --force --skip-if-larger --strip "$logo" >> "${LOGFILE:-/dev/null}"
     done
   else
-    flog WARN 'pngquant nicht gefunden. Logos werden nicht optimiert!'
+    f_log WARN 'pngquant nicht gefunden. Logos werden nicht optimiert!'
   fi
 fi
 
