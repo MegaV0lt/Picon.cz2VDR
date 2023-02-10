@@ -166,8 +166,10 @@ for package in "${LOGO_PACKAGE[@]}" ; do
 
     # Archiv Entpacken
     f_log INFO "Entpacke Logo-Paket für ${package}…"
-    7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y >> "${LOGFILE:-/dev/null}" \
-      || f_log ERR "Fehler beim entpacken von ${SRC_DIR}/${LOGO_ARCH}.7z"
+    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y >> "${LOGFILE:-/dev/null}" ; then \
+      f_log ERR "Fehler beim entpacken von ${SRC_DIR}/${LOGO_ARCH}.7z"
+      exit 1
+    fi
   else
     f_log INFO "Logopaket ${LOGO_ARCH}.7z ist bereits aktuell!"
   fi  # stat
@@ -180,7 +182,7 @@ if [[ "$optimize" == 'true' ]] ; then  # Logos optimieren
       pngquant --ext .png --force --skip-if-larger --strip "$logo" >> "${LOGFILE:-/dev/null}"
     done
   else
-    flog WARN 'pngquant nicht gefunden. Logos werden nicht optimiert!'
+    f_log WARN 'pngquant nicht gefunden. Logos werden nicht optimiert!'
   fi
 fi
 
