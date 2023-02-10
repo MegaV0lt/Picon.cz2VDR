@@ -115,7 +115,7 @@ for prog in "${needprogs[@]}" ; do
 done
 if [[ -n "${MISSING[*]}" ]] ; then  # Fehlende Programme anzeigen
   echo -e "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
-  f_exit 1
+  exit 1
 fi
 
 # Benötigte Variablen prüfen
