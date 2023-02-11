@@ -281,7 +281,7 @@ SCRIPT_TIMING[10]=$((SCRIPT_TIMING[2] - SCRIPT_TIMING[0]))  # Gesamt
 f_log "==> Skriptlaufzeit: $((SCRIPT_TIMING[10] / 60)) Minute(n) und $((SCRIPT_TIMING[10] % 60)) Sekunde(n)"
 
 if [[ -e "$LOGFILE" ]] ; then  # Log-Datei umbenennen, wenn zu groß
-  FILESIZE="$(stat --format=%s "$LOGFILE")"
+  FILESIZE="$(stat --format=%s "$LOGFILE" 2>/dev/null)"
   [[ $FILESIZE -gt $MAXLOGSIZE ]] && mv --force "$LOGFILE" "${LOGFILE}.old"
 fi
 
