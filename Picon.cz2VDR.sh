@@ -115,7 +115,7 @@ for prog in "${needprogs[@]}" ; do
 done
 if [[ -n "${MISSING[*]}" ]] ; then  # Fehlende Programme anzeigen
   echo -e "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
-  f_exit 1
+  exit 1
 fi
 
 # Benötigte Variablen prüfen
@@ -166,7 +166,7 @@ for package in "${LOGO_PACKAGE[@]}" ; do
 
     # Archiv Entpacken
     f_log INFO "Entpacke Logo-Paket für ${package}…"
-    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y >> "${LOGFILE:-/dev/null}" ; then \
+    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y >> "${LOGFILE:-/dev/null}" ; then
       f_log ERR "Fehler beim entpacken von ${SRC_DIR}/${LOGO_ARCH}.7z"
       exit 1
     fi
@@ -233,6 +233,7 @@ for i in "${!channelsconf[@]}" ; do
     else
       servicename="${vdr_channelname,,[A-Z]}"  # In Kleinbuchstaben (Außer Umlaute)
     fi  # TOLOWER
+    servicename="${servicename/|/:}"           # Kanal mit | im Namen
     if [[ "$servicename" =~ / ]] ; then        # Kanal mit / im Namen
       ch_path="${servicename%/*}"              # Der Teil vor dem lezten /
       mkdir --parents "${LOGODIR}/${ch_path}" \
