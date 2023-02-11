@@ -233,7 +233,7 @@ for i in "${!channelsconf[@]}" ; do
     else
       servicename="${vdr_channelname,,[A-Z]}"  # In Kleinbuchstaben (Außer Umlaute)
     fi  # TOLOWER
-    servicename="${servicename/|/:}"           # Kanal mit | im Namen
+    servicename="${servicename//|/:}"          # Kanal mit | im Namen
     if [[ "$servicename" =~ / ]] ; then        # Kanal mit / im Namen
       ch_path="${servicename%/*}"              # Der Teil vor dem lezten /
       mkdir --parents "${LOGODIR}/${ch_path}" \
