@@ -3,7 +3,7 @@
 # Skript zum verlinken der PICON-Kanallogos (Enigma2) von https://picon.cz
 # Update der Logos erfolgt ein mal pro Woche
 
-# Die Dateinamen derLogos passen nicht zum VDR-Schema. Darum erzeugt das Skript
+# Die Dateinamen der Logos passen nicht zum VDR-Schema. Darum erzeugt das Skript
 # aus der 'channels.conf' so genannte Service-Namen (PICON), um die Logos dann
 # passend zu verlinken. Im Logoverzeichnis des Skins liegen dann nur Symlinks
 
