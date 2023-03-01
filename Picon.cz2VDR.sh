@@ -1,17 +1,18 @@
 #!/bin/env bash
 
-# Skript zum verlinken der PICON-Kanallogos (Enigma2)
+# Skript zum verlinken der PICON-Kanallogos (Enigma2) von https://picon.cz
+# Update der Logos erfolgt ein mal pro Woche
 
-# Die Dateinamen passen nicht zum VDR-Schema. Darum erzeugt das Skript
+# Die Dateinamen derLogos passen nicht zum VDR-Schema. Darum erzeugt das Skript
 # aus der 'channels.conf' so genannte Service-Namen (PICON), um die Logos dann
-# passend zu verlinken. Im Logoverzeichnis des Skins liegen dann nur Symlinks.
+# passend zu verlinken. Im Logoverzeichnis des Skins liegen dann nur Symlinks
 
-# Die Logos liegen im PNG-Format vor.
-# Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden.
+# Die Logos liegen im PNG-Format vor
+# Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=230211
+VERSION=230301
 
-# Sämtliche Einstellungen werden in der *.conf vorgenommen.
+# Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
 
 ### Variablen
@@ -193,7 +194,7 @@ for i in "${!channelsconf[@]}" ; do
   [[ "${channelsconf[i]%%;*}" == '.' ]] && { ((bl++)) ; continue ;}    # '.' als Kanalname
   unset -v 'sid' 'tid' 'nid' 'namespace' 'channeltype'
   ((cnt++)) ; [[ -t 1 ]] && echo -ne "$msgINF Prüfe Kanal #${cnt}"\\r
-  IFS=':' read -r -a vdrchannel <<< "${channelsconf[i]}"
+  IFS=':' read -r -a vdrchannel <<< "${channelsconf[i]}"               # DELUXE MUSIC,DELUXE;BetaDigital
 
   case ${vdrchannel[3]} in
     *'W') namespace=$(bc -l <<< "scale=0 ; 3600 - ${vdrchannel[3]//[^0-9.]} * 10")
@@ -221,7 +222,7 @@ for i in "${!channelsconf[@]}" ; do
   unique_id="${sid:=NULL}_${tid:=NULL}_${nid:=NULL}_${namespace}"
   serviceref="1_0_${channeltype}_${unique_id}0000_0_0_0"
   IFS=';' read -r -a channelname <<< "${vdrchannel[0]}"
-  vdr_channelname="${channelname[0]%,*}"       # Kanalname ohne Kurzname
+  vdr_channelname="${channelname[0]%,*}"       # Kanalname ohne Kurzname (DELUXE MUSIC)
 
   # Kanalname: $vdr_channelname PICON: ${serviceref}.png
   logohist+=("$vdr_channelname -> $serviceref")
