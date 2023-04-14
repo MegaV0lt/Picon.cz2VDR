@@ -10,7 +10,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=230301
+VERSION=230414
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -156,8 +156,8 @@ for package in "${LOGO_PACKAGE[@]}" ; do
   DL_URL="${DL_INDEX[${LOGO_ARCH}]}"                # 1125
   [[ -z "$DL_URL" ]] && { f_log ERR "Download-Link für $LOGO_ARCH nicht gefunden!" ; exit 1 ;}
 
-  # Prüfen, ob geladene Logopakete älter als 1 Woche sind
-  if [[ $(stat --format=%Y "${SRC_DIR}/${LOGO_ARCH}.7z" 2>/dev/null) -le $((NOW - 60*60*24*7)) ]] ; then
+  # Prüfen, ob geladene Logopakete älter als 1 Woche sind (12 Stunden dazu wegen cron)
+  if [[ $(stat --format=%Y "${SRC_DIR}/${LOGO_ARCH}.7z" 2>/dev/null) -le $((NOW - 60*60*24*7 + 60*60*12)) ]] ; then
     optimize='true'  # Nur bei neuen Logos optimieren
 
     # Laden der Datei
