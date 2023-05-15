@@ -10,7 +10,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=230414
+VERSION=230515
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -32,10 +32,10 @@ f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   local logger=(logger --tag "$SELF_NAME") msg="${*:2}"
   case "${1^^}" in
     'ERR'*|'FATAL') if [[ -t 2 ]] ; then
-                      echo -e "$msgERR ${msg:-$1}${nc}"
+                      echo -e "$msgERR ${msg:-$1}${nc}" &>2
                     else
                       "${logger[@]}" --priority user.err "$*"
-                      echo "FEHLER: ${msg:-$1}"  # Für cron eMails
+                      echo "FEHLER: ${msg:-$1}" &>2  # Für cron eMails
                     fi ;;
     'WARN'*) [[ -t 1 ]] && { echo -e "$msgWRN ${msg:-$1}" ;} || "${logger[@]}" "$*" ;;
     'DEBUG') [[ -t 1 ]] && { echo -e "\e[1m${msg:-$1}${nc}" ;} || "${logger[@]}" "$*" ;;
@@ -56,12 +56,12 @@ f_extract_links() {
     --output-document="$tmpsrc" "$websrc"
 
   while read -r ; do  # URL in 1. Zeile, NAME in der 2. Zeile
-    if [[ "$REPLY" =~ picon.cz/download/ ]] ; then  # In der Zeile enthalten
+    if [[ "$REPLY" =~ $url_before ]] ; then  # In der Zeile enthalten
       [[ -n "$url" ]] && f_log WARN "Download-Link ohne Name gefunden! (/download/${url})"
       url="${REPLY/*${url_before}}" ; url="${url/${url_after}*}"  # 1125
       continue
     fi
-    if [[ "$REPLY" =~ by_chocholousek.7z ]] ; then  # In der Zeile enthalten
+    if [[ "$REPLY" =~ $name_after ]] ; then  # In der Zeile enthalten
       name="${REPLY/*${name_before}}" ; name="${name/${name_after}*}" # simpleblack-220x132-30.0W
       if [[ -n "$url" ]] ; then
         DL_INDEX+=([${name}]=${url}) #; echo "[${name}]=${url}"
@@ -270,7 +270,7 @@ printf '%s\n' "${nologo[@]}" | sort --unique > "${SRC_DIR}/No_Logo.txt"  # Nicht
 # Aufräumen
 f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
 find "$LOGODIR" -type d -empty -print -delete >> "${LOGFILE:-/dev/null}"  # Leere Verzeichnisse löschen
-find "$LOGO_PATH" -type f -name '*.png' -mtime +30 -print -delete >> "${LOGFILE:-/dev/null}"  # Alte Logos
+find "$LOGO_PATH" -name '*.png' -type f -mtime +30 -print -delete >> "${LOGFILE:-/dev/null}"  # Alte Logos
 
 # Statistik anzeigen
 [[ "${#nologo[@]}" -gt 0 ]] && f_log "==> ${#nologo[@]} Kanäle ohne Logo"
