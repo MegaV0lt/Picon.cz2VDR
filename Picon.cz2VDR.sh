@@ -32,10 +32,10 @@ f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
   local logger=(logger --tag "$SELF_NAME") msg="${*:2}"
   case "${1^^}" in
     'ERR'*|'FATAL') if [[ -t 2 ]] ; then
-                      echo -e "$msgERR ${msg:-$1}${nc}" &>2
+                      echo -e "$msgERR ${msg:-$1}${nc}" >&2
                     else
                       "${logger[@]}" --priority user.err "$*"
-                      echo "FEHLER: ${msg:-$1}" &>2  # Für cron eMails
+                      echo "FEHLER: ${msg:-$1}" >&2  # Für cron eMails
                     fi ;;
     'WARN'*) [[ -t 1 ]] && { echo -e "$msgWRN ${msg:-$1}" ;} || "${logger[@]}" "$*" ;;
     'DEBUG') [[ -t 1 ]] && { echo -e "\e[1m${msg:-$1}${nc}" ;} || "${logger[@]}" "$*" ;;
@@ -80,6 +80,7 @@ SCRIPT_TIMING[0]=$SECONDS  # Startzeit merken (Sekunden)
 while getopts ":c:" opt ; do
   case "$opt" in
     c) if [[ -f "${CONFIG:=$OPTARG}" ]] ; then  # Konfig wurde angegeben und existiert
+         # shellcheck source=Picon.cz2VDR.conf.dist
          source "$CONFIG" ; CONFLOADED='Angegebene' ; break
        else
          f_log ERR "Fehler! Die angegebene Konfigurationsdatei fehlt! (\"${CONFIG}\")"
@@ -96,6 +97,7 @@ if [[ -z "$CONFLOADED" ]] ; then  # Konfiguration wurde noch nicht geladen
   for dir in "${CONFIG_DIRS[@]}" ; do
     CONFIG="${dir}/${CONFIG_NAME}"
     if [[ -f "$CONFIG" ]] ; then
+      # shellcheck source=Picon.cz2VDR.conf.dist
       source "$CONFIG" ; CONFLOADED='Gefundene'
       break  # Die erste gefundene Konfiguration wird verwendet
     fi
