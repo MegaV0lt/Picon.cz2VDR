@@ -10,7 +10,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=230515
+VERSION=231122
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -231,11 +231,11 @@ for i in "${!channelsconf[@]}" ; do
 
   # Kanal verlinken, wenn Logo existiert
   if [[ -e "${LOGO_PATH}/${serviceref}.png" ]] ; then  # Picon vorhanden?
-    if [[ "${TOLOWER:-ALL}" == 'ALL' ]] ; then
-      servicename="${vdr_channelname,,}"       # Alles in kleinbuchstaben
-    else
-      servicename="${vdr_channelname,,[A-Z]}"  # In Kleinbuchstaben (Außer Umlaute)
-    fi  # TOLOWER
+    case "${TOLOWER^^}" in
+      'A-Z') servicename="${vdr_channelname,,[A-Z]}" ;;  # In Kleinbuchstaben (Außer Umlaute)
+      'FALSE') ;;                                        # Nicht umwandeln
+      *)     servicename="${vdr_channelname,,}" ;;       # Alles in kleinbuchstaben (ALL und Leer)
+    esac
     servicename="${servicename//|/:}"          # Kanal mit | im Namen
     if [[ "$servicename" =~ / ]] ; then        # Kanal mit / im Namen
       ch_path="${servicename%/*}"              # Der Teil vor dem lezten /
