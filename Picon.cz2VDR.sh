@@ -233,8 +233,8 @@ for i in "${!channelsconf[@]}" ; do
   if [[ -e "${LOGO_PATH}/${serviceref}.png" ]] ; then  # Picon vorhanden?
     case "${TOLOWER^^}" in
       'A-Z') servicename="${vdr_channelname,,[A-Z]}" ;;  # In Kleinbuchstaben (Außer Umlaute)
-      'FALSE') ;;                                        # Nicht umwandeln
-      *)     servicename="${vdr_channelname,,}" ;;       # Alles in kleinbuchstaben (ALL und Leer)
+      'FALSE') servicename="$vdr_channelname" ;;         # Nicht umwandeln
+      *) servicename="${vdr_channelname,,}" ;;           # Alles in kleinbuchstaben (ALL und Leer)
     esac
     servicename="${servicename//|/:}"          # Kanal mit | im Namen
     if [[ "$servicename" =~ / ]] ; then        # Kanal mit / im Namen
