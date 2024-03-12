@@ -1,0 +1,33 @@
+######################## KONFIGURATION zum Skript Picon.cz2VDR ##########################
+#
+# Alle Einstellungen zum Skript werden hier eingetragen. Diese Datei (Picon.cz2TPL.conf)
+# am besten nach ~/etc oder das Skript-Verzeichnis kopieren
+# Das Skript findet sie dann automatisch
+#
+#########################################################################################
+
+### Hinweis zum ausfüllen: Wenn Variablen ($) verwendet werden,
+### dann in doppelten " ansonsten können einfache ' benutzt werden
+
+# 'LOGODIR' ist der Ordner, wo die Symlinks angelegt werden
+# Verzeichnis ohne abschließendes '/'
+LOGODIR='/etc/oscam/skin'  # Logos für OSCam Webif
+
+# Werte für LOGO_TYPE, LOGO_SIZE und LOGO_PACKAGE können unter https://picon.cz/plugin/
+# eingesehen werden.
+
+# Logotyp (transparent ,transparentdark, black, …)
+LOGO_TYPE='transparent'  # Vorgabe: transparent
+
+# Logogröße (220x132, …)
+LOGO_SIZE='220x132'      # Vorgabe: 220x132
+
+# Logopaket (19.2E 13.0E … - Siehe https://picon.cz/download-picons/picon-transparent-220x132)
+# Beispiel bei Empfang von 2 Satelliten: LOGO_PACKAGE=(19.2E 9.0E)
+LOGO_PACKAGE=(19.2E)     # Vorgabe: 19.2E
+
+# Logdatei. Wenn nicht gewünscht einfach auskommentiern
+LOGFILE="/var/log/${SELF_NAME%.*}.log" # Log-Datei
+
+# Maximale Größe der Logdatei. Bei überschreiten wird diese vom Skript umbenannt in *.old
+MAXLOGSIZE=$((1024*50))                # Log-Datei: Maximale Größe in Byte
