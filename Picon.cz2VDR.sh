@@ -10,7 +10,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=231122
+VERSION=240330
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -24,7 +24,6 @@ WGET_OPT=('--cookies=on' --keep-session-cookies --quiet "--user-agent=$USER_AGEN
 msgERR='\e[1;41m FEHLER! \e[0;1m' ; nc='\e[0m'   # Anzeige "FEHLER!"
 msgINF='\e[42m \e[0m' ; msgWRN='\e[103m \e[0m'   # " " mit grünem/gelben Hintergrund
 printf -v RUNDATE '%(%d.%m.%Y %R)T' -1  # Aktuelles Datum und Zeit
-printf -v NOW '%(%s)T' -1               # Aktuelle Zeit in Sekunden
 declare -A DL_INDEX                     # Download-Links für die Logopakete
 
 ### Funktionen
@@ -42,12 +41,13 @@ f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
     'INFO'*) [[ -t 1 ]] && { echo -e "$msgINF ${msg:-$1}" ;} || "${logger[@]}" "$*" ;;
     *) [[ -t 1 ]] && { echo -e "$*" ;} || "${logger[@]}" "$*" ;;  # Nicht angegebene
   esac
-  [[ -n "$LOGFILE" ]] && printf '%(%d.%m.%Y %T)T: %b\n' -1 "$*" 2>/dev/null >> "$LOGFILE"  # Log in Datei
+  [[ -n "$LOGFILE" && -w "$LOGFILE" ]] && printf '%(%d.%m.%Y %T)T: %b\n' -1 "$*" >> "$LOGFILE"  # Log in Datei
 }
 
 f_extract_links() {
-  local name url tmpsrc='/tmp/~websrc.htm' websrc="$1"
-  local url_before='picon.cz/download/' url_after='/' name_before='picon' name_after='_by_chocholousek.7z'
+  local build name url tmpsrc='/tmp/~websrc.htm' websrc="$1"
+  local re_url='picon.cz/download/(.*)/' re_name='picon(.*)_by_chocholousek.7z'
+  local re_build='Build ([0-9]*)'
   # Seite laden
   if [[ ! "$websrc" =~ picon-transparent-220x132 ]] ; then
     websrc="${websrc/picon-/picon}"  # Workaround
@@ -56,21 +56,41 @@ f_extract_links() {
     --output-document="$tmpsrc" "$websrc"
 
   while read -r ; do  # URL in 1. Zeile, NAME in der 2. Zeile
-    if [[ "$REPLY" =~ $url_before ]] ; then  # In der Zeile enthalten
+    if [[ "$REPLY" =~ $re_url ]] ; then  # In der Zeile enthalten
       [[ -n "$url" ]] && f_log WARN "Download-Link ohne Name gefunden! (/download/${url})"
-      url="${REPLY/*${url_before}}" ; url="${url/${url_after}*}"  # 1125
+      url="${BASH_REMATCH[1]}"  # 1125
+      if [[ "$REPLY" =~ $re_build ]] ; then
+        build="${BASH_REMATCH[1]}"  # 230105
+      fi
       continue
     fi
-    if [[ "$REPLY" =~ $name_after ]] ; then  # In der Zeile enthalten
-      name="${REPLY/*${name_before}}" ; name="${name/${name_after}*}" # simpleblack-220x132-30.0W
+    if [[ "$REPLY" =~ $re_name ]] ; then  # In der Zeile enthalten
+      name="${BASH_REMATCH[1]}"  # simpleblack-220x132-30.0W
       if [[ -n "$url" ]] ; then
-        DL_INDEX+=([${name}]=${url}) #; echo "[${name}]=${url}"
-        unset -v 'url'
+        DL_INDEX+=([${name}]=${url})
+        BUILD_INDEX+=([${name}]=${build})
+        unset -v 'build' 'url'
       else
         f_log WARN "Kein Download-Link für Paket $name gefunden!"
       fi
     fi
   done < "$tmpsrc"
+}
+
+f_check_build_date() {  # Erstelldatum einlesen und mit prüfen, ob älter als die geladene…
+  local prev_build="${SRC_DIR}/${LOGO_ARCH}.build" prev_build_date
+  [[ -z "$BUILD_DATE" ]] && { f_log ERR "BUILD_DATE ist leer!" ; return 1 ;}
+  if [[ -e "$prev_build" ]] ; then
+    read -r prev_build_date < "$prev_build"
+    if [[ "$prev_build_date" -lt "$BUILD_DATE" ]] ; then
+      echo "$BUILD_DATE" > "$prev_build"
+    else
+      return 1  #  Palket nicht laden
+    fi
+  else
+    echo "$BUILD_DATE" > "$prev_build"  # Datei erstellen
+  fi
+  return 0  # Paket laden
 }
 
 ### Start
@@ -132,6 +152,13 @@ if [[ ! -d "$LOGO_PATH" ]] ; then
   mkdir --parents "$LOGO_PATH" || { f_log ERR "Fehler beim erstellen von $LOGO_PATH" ; exit 1 ;}
 fi
 
+# Alte Dateien löschen
+f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
+{ find "$SRC_DIR" -name '*.build' -name '*.7z' -type f -mtime +30 -print -delete  # Alte Pakete
+  find "$LOGO_PATH" -name '*.png' -type f -mtime +30 -print -delete               # Alte Logos
+  find "$LOGODIR" -type d -empty -print -delete                                   # Leere Verzeichnisse löschen
+} 2>/dev/null >> "${LOGFILE:-/dev/null}"
+
 if [[ -f "$CHANNELSCONF" ]] ; then
   mapfile -t channelsconf < "$CHANNELSCONF"         # Kanalliste in Array einlesen
 else
@@ -157,9 +184,11 @@ for package in "${LOGO_PACKAGE[@]}" ; do
   LOGO_ARCH="${LOGO_TYPE}-${LOGO_SIZE}-${package}"  # transparent-220x132-19.2E
   DL_URL="${DL_INDEX[${LOGO_ARCH}]}"                # 1125
   [[ -z "$DL_URL" ]] && { f_log ERR "Download-Link für $LOGO_ARCH nicht gefunden!" ; exit 1 ;}
+  BUILD_DATE="${BUILD_INDEX[${LOGO_ARCH}]}"         # 230105
 
-  # Prüfen, ob geladene Logopakete älter als 1 Woche sind (12 Stunden dazu wegen cron)
-  if [[ $(stat --format=%Y "${SRC_DIR}/${LOGO_ARCH}.7z" 2>/dev/null) -le $((NOW - 60*60*24*7 + 60*60*12)) ]] ; then
+  # Build-Datum prüfen
+  # # Erstelldatum einlesen und mit prüfen, ob älter als die geladene…
+  if f_check_build_date ; then
     optimize='true'  # Nur bei neuen Logos optimieren
 
     # Laden der Datei
@@ -169,12 +198,12 @@ for package in "${LOGO_PACKAGE[@]}" ; do
 
     # Archiv Entpacken
     f_log INFO "Entpacke Logo-Paket für ${package}…"
-    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y >> "${LOGFILE:-/dev/null}" ; then
+    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y &>> "${LOGFILE:-/dev/null}" ; then
       f_log ERR "Fehler beim entpacken von ${SRC_DIR}/${LOGO_ARCH}.7z"
       exit 1
     fi
   else
-    f_log INFO "Logopaket ${LOGO_ARCH}.7z ist bereits aktuell!"
+    f_log INFO "Logopaket ${LOGO_ARCH}.7z ist bereits aktuell! (Erstelldatum: ${BUILD_DATE})"
   fi  # stat
 done  # LOGO_PACKAGE
 
@@ -268,11 +297,6 @@ if [[ -n "$LOGO_HIST" ]] ; then
 fi
 
 printf '%s\n' "${nologo[@]}" | sort --unique > "${SRC_DIR}/No_Logo.txt"  # Nicht gefundene Logos
-
-# Aufräumen
-f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
-find "$LOGODIR" -type d -empty -print -delete >> "${LOGFILE:-/dev/null}"  # Leere Verzeichnisse löschen
-find "$LOGO_PATH" -name '*.png' -type f -mtime +30 -print -delete >> "${LOGFILE:-/dev/null}"  # Alte Logos
 
 # Statistik anzeigen
 [[ "${#nologo[@]}" -gt 0 ]] && f_log "==> ${#nologo[@]} Kanäle ohne Logo"

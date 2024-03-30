@@ -6,7 +6,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR', 'LOGO_TYPE', 'LOGO_SIZE' und 'LOGO_PACKAGE'
 # angepasst werden. Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=240312
+VERSION=240330
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -20,8 +20,7 @@ WGET_OPT=('--cookies=on' --keep-session-cookies --quiet "--user-agent=$USER_AGEN
 msgERR='\e[1;41m FEHLER! \e[0;1m' ; nc='\e[0m'   # Anzeige "FEHLER!"
 msgINF='\e[42m \e[0m' ; msgWRN='\e[103m \e[0m'   # " " mit grünem/gelben Hintergrund
 printf -v RUNDATE '%(%d.%m.%Y %R)T' -1  # Aktuelles Datum und Zeit
-printf -v NOW '%(%s)T' -1               # Aktuelle Zeit in Sekunden
-declare -A DL_INDEX                     # Download-Links für die Logopakete
+declare -A DL_INDEX BUILD_INDEX         # Download-Links für die Logopakete und Build Datum
 
 ### Funktionen
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
@@ -38,12 +37,13 @@ f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
     'INFO'*) [[ -t 1 ]] && { echo -e "$msgINF ${msg:-$1}" ;} || "${logger[@]}" "$*" ;;
     *) [[ -t 1 ]] && { echo -e "$*" ;} || "${logger[@]}" "$*" ;;  # Nicht angegebene
   esac
-  [[ -n "$LOGFILE" ]] && printf '%(%d.%m.%Y %T)T: %b\n' -1 "$*" 2>/dev/null >> "$LOGFILE"  # Log in Datei
+  [[ -n "$LOGFILE" && -w "$LOGFILE" ]] && printf '%(%d.%m.%Y %T)T: %b\n' -1 "$*" >> "$LOGFILE"  # Log in Datei
 }
 
 f_extract_links() {
-  local name url tmpsrc='/tmp/~websrc.htm' websrc="$1"
+  local build name url tmpsrc='/tmp/~websrc.htm' websrc="$1"
   local re_url='picon.cz/download/(.*)/' re_name='picon(.*)_by_chocholousek.7z'
+  local re_build='Build ([0-9]*)'
   # Seite laden
   if [[ ! "$websrc" =~ picon-transparent-220x132 ]] ; then
     websrc="${websrc/picon-/picon}"  # Workaround
@@ -51,22 +51,42 @@ f_extract_links() {
   wget "${WGET_OPT[@]}" --load-cookies="${SRC_DIR}/cookie.txt" --referer="$PICON_URL" \
     --output-document="$tmpsrc" "$websrc"
 
-  while read -r ; do  # URL in 1. Zeile, NAME in der 2. Zeile
+  while read -r ; do  # BUILD und URL in 1. Zeile, NAME in der 2. Zeile
     if [[ "$REPLY" =~ $re_url ]] ; then  # In der Zeile enthalten
       [[ -n "$url" ]] && f_log WARN "Download-Link ohne Name gefunden! (/download/${url})"
       url="${BASH_REMATCH[1]}"  # 1125
+      if [[ "$REPLY" =~ $re_build ]] ; then
+        build="${BASH_REMATCH[1]}"  # 230105
+      fi
       continue
     fi
     if [[ "$REPLY" =~ $re_name ]] ; then  # In der Zeile enthalten
       name="${BASH_REMATCH[1]}"  # simpleblack-220x132-30.0W
       if [[ -n "$url" ]] ; then
-        DL_INDEX+=([${name}]=${url}) #; echo "[${name}]=${url}"
-        unset -v 'url'
+        DL_INDEX+=([${name}]=${url})
+        BUILD_INDEX+=([${name}]=${build})
+        unset -v 'build' 'url'
       else
         f_log WARN "Kein Download-Link für Paket $name gefunden!"
       fi
     fi
   done < "$tmpsrc"
+}
+
+f_check_build_date() {  # Erstelldatum einlesen und mit prüfen, ob älter als die geladene…
+  local prev_build="${SRC_DIR}/${LOGO_ARCH}.build" prev_build_date
+  [[ -z "$BUILD_DATE" ]] && { f_log ERR "BUILD_DATE ist leer!" ; return 1 ;}
+  if [[ -e "$prev_build" ]] ; then
+    read -r prev_build_date < "$prev_build"
+    if [[ "$prev_build_date" -lt "$BUILD_DATE" ]] ; then
+      echo "$BUILD_DATE" > "$prev_build"
+    else
+      return 1  #  Palket nicht laden
+    fi
+  else
+    echo "$BUILD_DATE" > "$prev_build"  # Datei erstellen
+  fi
+  return 0  # Paket laden
 }
 
 ### Start
@@ -76,7 +96,7 @@ SCRIPT_TIMING[0]=$SECONDS  # Startzeit merken (Sekunden)
 while getopts ":c:" opt ; do
   case "$opt" in
     c) if [[ -f "${CONFIG:=$OPTARG}" ]] ; then  # Konfig wurde angegeben und existiert
-         # shellcheck source=Picon.cz2VDR.conf.dist
+         # shellcheck source=Picon.cz2TPL.conf.dist
          source "$CONFIG" ; CONFLOADED='Angegebene' ; break
        else
          f_log ERR "Fehler! Die angegebene Konfigurationsdatei fehlt! (\"${CONFIG}\")"
@@ -128,6 +148,12 @@ if [[ ! -d "$LOGO_PATH" ]] ; then
   mkdir --parents "$LOGO_PATH" || { f_log ERR "Fehler beim erstellen von $LOGO_PATH" ; exit 1 ;}
 fi
 
+# Alte Dateien löschen
+f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
+{ find "$SRC_DIR" -name '*.build' -name '*.7z' -type f -mtime +30 -print -delete  # Alte Pakete
+  find "$LOGO_PATH" -name '*.png' -type f -mtime +30 -print -delete               # Alte Logos
+} 2>/dev/null >> "${LOGFILE:-/dev/null}"
+
 # Vorgaben
 : "${LOGO_TYPE:=transparent}" ; : "${LOGO_SIZE:=220x132}"
 [[ -z "${LOGO_PACKAGE[*]}" ]] && LOGO_PACKAGE=(19.2E)
@@ -144,9 +170,10 @@ for package in "${LOGO_PACKAGE[@]}" ; do
   LOGO_ARCH="${LOGO_TYPE}-${LOGO_SIZE}-${package}"  # transparent-220x132-19.2E
   DL_URL="${DL_INDEX[${LOGO_ARCH}]}"                # 1125
   [[ -z "$DL_URL" ]] && { f_log ERR "Download-Link für $LOGO_ARCH nicht gefunden!" ; exit 1 ;}
+  BUILD_DATE="${BUILD_INDEX[${LOGO_ARCH}]}"         # 230105
 
-  # Prüfen, ob geladene Logopakete älter als 1 Woche sind (12 Stunden dazu wegen cron)
-  if [[ $(stat --format=%Y "${SRC_DIR}/${LOGO_ARCH}.7z" 2>/dev/null) -le $((NOW - 60*60*24*7 + 60*60*12)) ]] ; then
+  # Erstelldatum einlesen und mit prüfen, ob älter als die geladene…
+  if f_check_build_date ; then
     # Laden der Datei
     f_log INFO "Lade Logo-Paket für ${package}…"
     wget "${WGET_OPT[@]}" --load-cookies="${SRC_DIR}/cookie.txt" --referer="$PICON_URL" \
@@ -154,12 +181,12 @@ for package in "${LOGO_PACKAGE[@]}" ; do
 
     # Archiv Entpacken
     f_log INFO "Entpacke Logo-Paket für ${package}…"
-    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y >> "${LOGFILE:-/dev/null}" ; then
+    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y 2>/dev/null >> "${LOGFILE:-/dev/null}" ; then
       f_log ERR "Fehler beim entpacken von ${SRC_DIR}/${LOGO_ARCH}.7z"
       exit 1
     fi
   else
-    f_log INFO "Logopaket ${LOGO_ARCH}.7z ist bereits aktuell!"
+    f_log INFO "Logopaket ${LOGO_ARCH}.7z ist bereits aktuell! (Erstelldatum: ${BUILD_DATE})"
   fi  # stat
 done  # LOGO_PACKAGE
 
@@ -180,10 +207,6 @@ for logo in "${LOGO_PATH}"/*.png ; do
     } > "${LOGODIR}/${TPL_FILE}"
   fi
 done
-
-# Aufräumen
-f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
-find "$LOGO_PATH" -name '*.png' -type f -mtime +30 -print -delete >> "${LOGFILE:-/dev/null}"  # Alte Logos
 
 # Statistik anzeigen
 SCRIPT_TIMING[2]=$SECONDS  # Zeit nach der Statistik
