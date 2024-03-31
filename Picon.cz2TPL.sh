@@ -193,7 +193,11 @@ done  # LOGO_PACKAGE
 # Picon zuordnen und nach TPL konvertieren
 for logo in "${LOGO_PATH}"/*.png ; do
   IFS='_' read -r -a PICON <<< "$logo"
-  printf -v TPL_FILE "IC_0000_%04d.tpl" "${PICON[3]}"  # TPL inkl. führende 0 hinzufügen
+  while [[ "${#PICON[3]}" -lt 4 ]] ; do
+    PICON[3]="0${PICON[3]}"  # Führende 0 hinzufügen
+  done
+  TPL_FILE="IC_0000_${PICON[3]}.tpl"
+
   if [[ "$logo" -nt "${LOGODIR}/${TPL_FILE}" ]] ; then
     echo "Konvertiere ${logo}…"
     # The "GIMP" default (radius=6, amount=0.5, threshold=0) for unsharp is equivalent to "-unsharp 12x6+0.5+0",
