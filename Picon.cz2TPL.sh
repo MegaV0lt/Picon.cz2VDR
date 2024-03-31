@@ -75,7 +75,7 @@ f_extract_links() {
 
 f_check_build_date() {  # Erstelldatum einlesen und mit prüfen, ob älter als die geladene…
   local prev_build="${SRC_DIR}/${LOGO_ARCH}.build" prev_build_date
-  [[ -z "$BUILD_DATE" ]] && { f_log ERR "BUILD_DATE ist leer!" ; return 1 ;}
+  [[ -z "$BUILD_DATE" ]] && { f_log ERR "BUILD_DATE ist leer! (${LOGO_ARCH})" ; return 1 ;}
   if [[ -e "$prev_build" ]] ; then
     read -r prev_build_date < "$prev_build"
     if [[ "$prev_build_date" -lt "$BUILD_DATE" ]] ; then
@@ -133,7 +133,7 @@ for prog in "${needprogs[@]}" ; do
   type "$prog" &>/dev/null || MISSING+=("$prog")
 done
 if [[ -n "${MISSING[*]}" ]] ; then  # Fehlende Programme anzeigen
-  echo -e "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
+  f_log ERR "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
   exit 1
 fi
 
@@ -193,17 +193,14 @@ done  # LOGO_PACKAGE
 # Picon zuordnen und nach TPL konvertieren
 for logo in "${LOGO_PATH}"/*.png ; do
   IFS='_' read -r -a PICON <<< "$logo"
-  while [[ "${#PICON[3]}" -lt 4 ]] ; do
-    PICON[3]="0${PICON[3]}"  # Führende 0 hinzufügen
-  done
-  TPL_FILE="IC_0000_${PICON[3]}.tpl"
+  printf -v TPL_FILE "IC_0000_%04d.tpl" "${PICON[3]}"  # TPL inkl. führende 0 hinzufügen
   if [[ "$logo" -nt "${LOGODIR}/${TPL_FILE}" ]] ; then
     echo "Konvertiere ${logo}…"
     # The "GIMP" default (radius=6, amount=0.5, threshold=0) for unsharp is equivalent to "-unsharp 12x6+0.5+0",
     # and this is correct (other than ignoring that GIMP sets a hard radius at twice sigma). However remember you
     # really do not need to specify the kernel radius in ImageMagick, so a value of "-unsharp 0x6+0.5+0" will work better.
     { echo -n 'data:image/png;base64,'
-      convert "$logo" -adaptive-resize 100x60 -unsharp 0x6+0.5+0 PNG32:- | base64 -i -w 0
+      convert "$logo" -adaptive-resize "${TPL_SIZE:-100x60}" -unsharp 0x6+0.5+0 PNG32:- | base64 -i -w 0
     } > "${LOGODIR}/${TPL_FILE}"
   fi
 done

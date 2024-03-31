@@ -79,7 +79,7 @@ f_extract_links() {
 
 f_check_build_date() {  # Erstelldatum einlesen und mit prüfen, ob älter als die geladene…
   local prev_build="${SRC_DIR}/${LOGO_ARCH}.build" prev_build_date
-  [[ -z "$BUILD_DATE" ]] && { f_log ERR "BUILD_DATE ist leer!" ; return 1 ;}
+  [[ -z "$BUILD_DATE" ]] && { f_log ERR "BUILD_DATE ist leer! (${LOGO_ARCH})" ; return 1 ;}
   if [[ -e "$prev_build" ]] ; then
     read -r prev_build_date < "$prev_build"
     if [[ "$prev_build_date" -lt "$BUILD_DATE" ]] ; then
@@ -137,7 +137,7 @@ for prog in "${needprogs[@]}" ; do
   type "$prog" &>/dev/null || MISSING+=("$prog")
 done
 if [[ -n "${MISSING[*]}" ]] ; then  # Fehlende Programme anzeigen
-  echo -e "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
+  f_log ERR "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
   exit 1
 fi
 
@@ -198,7 +198,7 @@ for package in "${LOGO_PACKAGE[@]}" ; do
 
     # Archiv Entpacken
     f_log INFO "Entpacke Logo-Paket für ${package}…"
-    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y &>> "${LOGFILE:-/dev/null}" ; then
+    if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y 2>/dev/null >> "${LOGFILE:-/dev/null}" ; then
       f_log ERR "Fehler beim entpacken von ${SRC_DIR}/${LOGO_ARCH}.7z"
       exit 1
     fi

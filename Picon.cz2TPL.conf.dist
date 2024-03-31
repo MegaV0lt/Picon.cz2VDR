@@ -9,7 +9,7 @@
 ### Hinweis zum ausfüllen: Wenn Variablen ($) verwendet werden,
 ### dann in doppelten " ansonsten können einfache ' benutzt werden
 
-# 'LOGODIR' ist der Ordner, wo die Symlinks angelegt werden
+# 'LOGODIR' ist der Ordner, wo die TPL-Dateien abgelegt werden
 # Verzeichnis ohne abschließendes '/'
 LOGODIR='/etc/oscam/skin'  # Logos für OSCam Webif
 
@@ -21,6 +21,9 @@ LOGO_TYPE='transparent'  # Vorgabe: transparent
 
 # Logogröße (220x132, …)
 LOGO_SIZE='220x132'      # Vorgabe: 220x132
+
+# Größe der .tpl Dateien 
+#TPL_SIZE='100x60'       # Vorgabe 100x60
 
 # Logopaket (19.2E 13.0E … - Siehe https://picon.cz/download-picons/picon-transparent-220x132)
 # Beispiel bei Empfang von 2 Satelliten: LOGO_PACKAGE=(19.2E 9.0E)
