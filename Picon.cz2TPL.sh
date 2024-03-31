@@ -6,7 +6,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR', 'LOGO_TYPE', 'LOGO_SIZE' und 'LOGO_PACKAGE'
 # angepasst werden. Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=240330
+VERSION=240331
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -20,7 +20,7 @@ WGET_OPT=('--cookies=on' --keep-session-cookies --quiet "--user-agent=$USER_AGEN
 msgERR='\e[1;41m FEHLER! \e[0;1m' ; nc='\e[0m'   # Anzeige "FEHLER!"
 msgINF='\e[42m \e[0m' ; msgWRN='\e[103m \e[0m'   # " " mit grünem/gelben Hintergrund
 printf -v RUNDATE '%(%d.%m.%Y %R)T' -1  # Aktuelles Datum und Zeit
-declare -A DL_INDEX BUILD_INDEX         # Download-Links für die Logopakete und Build Datum
+declare -A DL_INDEX BUILD_INDEX         # Download-Links für die Logopakete und Erstellungs Datum
 
 ### Funktionen
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
@@ -41,7 +41,7 @@ f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
 }
 
 f_extract_links() {
-  local build name url tmpsrc='/tmp/~websrc.htm' websrc="$1"
+  local build package url tmpsrc='/tmp/~websrc.htm' websrc="$1"
   local re_url='picon.cz/download/(.*)/' re_name='picon(.*)_by_chocholousek.7z'
   local re_build='Build ([0-9]*)'
   # Seite laden
@@ -61,13 +61,13 @@ f_extract_links() {
       continue
     fi
     if [[ "$REPLY" =~ $re_name ]] ; then  # In der Zeile enthalten
-      name="${BASH_REMATCH[1]}"  # simpleblack-220x132-30.0W
+      package="${BASH_REMATCH[1]}"  # simpleblack-220x132-30.0W
       if [[ -n "$url" ]] ; then
-        DL_INDEX+=([${name}]=${url})
-        BUILD_INDEX+=([${name}]=${build})
+        DL_INDEX+=([$package]=${url})
+        BUILD_INDEX+=([$package]=${build})
         unset -v 'build' 'url'
       else
-        f_log WARN "Kein Download-Link für Paket $name gefunden!"
+        f_log WARN "Kein Download-Link für Paket $package gefunden!"
       fi
     fi
   done < "$tmpsrc"
@@ -200,7 +200,7 @@ for logo in "${LOGO_PATH}"/*.png ; do
     # and this is correct (other than ignoring that GIMP sets a hard radius at twice sigma). However remember you
     # really do not need to specify the kernel radius in ImageMagick, so a value of "-unsharp 0x6+0.5+0" will work better.
     { echo -n 'data:image/png;base64,'
-      convert "$logo" -adaptive-resize "${TPL_SIZE:-100x60}" -unsharp 0x6+0.5+0 PNG32:- | base64 -i -w 0
+      convert "$logo" -adaptive-resize "${TPL_SIZE:=100x60}" -unsharp 0x6+0.5+0 PNG32:- | base64 -i -w 0
     } > "${LOGODIR}/${TPL_FILE}"
   fi
 done

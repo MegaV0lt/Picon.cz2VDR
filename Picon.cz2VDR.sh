@@ -10,7 +10,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=240330
+VERSION=240331
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -24,7 +24,7 @@ WGET_OPT=('--cookies=on' --keep-session-cookies --quiet "--user-agent=$USER_AGEN
 msgERR='\e[1;41m FEHLER! \e[0;1m' ; nc='\e[0m'   # Anzeige "FEHLER!"
 msgINF='\e[42m \e[0m' ; msgWRN='\e[103m \e[0m'   # " " mit grünem/gelben Hintergrund
 printf -v RUNDATE '%(%d.%m.%Y %R)T' -1  # Aktuelles Datum und Zeit
-declare -A DL_INDEX                     # Download-Links für die Logopakete
+declare -A DL_INDEX BUILD_INDEX         # Download-Links für die Logopakete und Erstalldatum
 
 ### Funktionen
 f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
@@ -45,7 +45,7 @@ f_log() {     # Gibt die Meldung auf der Konsole und im Syslog aus
 }
 
 f_extract_links() {
-  local build name url tmpsrc='/tmp/~websrc.htm' websrc="$1"
+  local build package url tmpsrc='/tmp/~websrc.htm' websrc="$1"
   local re_url='picon.cz/download/(.*)/' re_name='picon(.*)_by_chocholousek.7z'
   local re_build='Build ([0-9]*)'
   # Seite laden
@@ -65,13 +65,13 @@ f_extract_links() {
       continue
     fi
     if [[ "$REPLY" =~ $re_name ]] ; then  # In der Zeile enthalten
-      name="${BASH_REMATCH[1]}"  # simpleblack-220x132-30.0W
+      package="${BASH_REMATCH[1]}"  # simpleblack-220x132-30.0W
       if [[ -n "$url" ]] ; then
-        DL_INDEX+=([${name}]=${url})
-        BUILD_INDEX+=([${name}]=${build})
+        DL_INDEX+=([$package]=${url})
+        BUILD_INDEX+=([$package]=${build})
         unset -v 'build' 'url'
       else
-        f_log WARN "Kein Download-Link für Paket $name gefunden!"
+        f_log WARN "Kein Download-Link für Paket $package gefunden!"
       fi
     fi
   done < "$tmpsrc"
@@ -156,7 +156,7 @@ fi
 f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
 { find "$SRC_DIR" -name '*.build' -name '*.7z' -type f -mtime +30 -print -delete  # Alte Pakete
   find "$LOGO_PATH" -name '*.png' -type f -mtime +30 -print -delete               # Alte Logos
-  find "$LOGODIR" -type d -empty -print -delete                                   # Leere Verzeichnisse löschen
+  find "$LOGODIR" -type d -empty -mtime +30 -print -delete                        # Leere Verzeichnisse löschen
 } 2>/dev/null >> "${LOGFILE:-/dev/null}"
 
 if [[ -f "$CHANNELSCONF" ]] ; then
