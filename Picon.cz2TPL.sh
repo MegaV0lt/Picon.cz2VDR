@@ -199,7 +199,7 @@ for logo in "${LOGO_PATH}"/*.png ; do
   TPL_FILE="IC_0000_${PICON[3]}.tpl"
 
   if [[ "$logo" -nt "${LOGODIR}/${TPL_FILE}" ]] ; then
-    echo "Konvertiere ${logo}…"
+    f_log "Konvertiere ${logo}…"
     # The "GIMP" default (radius=6, amount=0.5, threshold=0) for unsharp is equivalent to "-unsharp 12x6+0.5+0",
     # and this is correct (other than ignoring that GIMP sets a hard radius at twice sigma). However remember you
     # really do not need to specify the kernel radius in ImageMagick, so a value of "-unsharp 0x6+0.5+0" will work better.
