@@ -154,9 +154,9 @@ fi
 
 # Alte Dateien löschen
 f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
-{ find "$SRC_DIR" -name '*.build' -name '*.7z' -type f -mtime +30 -print -delete  # Alte Pakete
-  find "$LOGO_PATH" -name '*.png' -type f -mtime +30 -print -delete               # Alte Logos
-  find "$LOGODIR" -type d -empty -mtime +30 -print -delete                        # Leere Verzeichnisse löschen
+{ find "$SRC_DIR" -name '*.build' -name '*.7z' -type f -mtime +360 -print -delete  # Alte Pakete
+  find "$LOGO_PATH" -name '*.png' -type f -mtime +360 -print -delete               # Alte Logos
+  find "$LOGODIR" -type d -empty -mtime +360 -print -delete                        # Leere Verzeichnisse löschen
 } 2>/dev/null >> "${LOGFILE:-/dev/null}"
 
 if [[ -f "$CHANNELSCONF" ]] ; then
