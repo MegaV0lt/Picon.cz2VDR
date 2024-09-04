@@ -82,7 +82,7 @@ f_check_build_date() {  # Erstelldatum einlesen und mit prüfen, ob älter als d
   [[ -z "$BUILD_DATE" ]] && { f_log ERR "BUILD_DATE ist leer! (${LOGO_ARCH})" ; return 1 ;}
   if [[ -e "$prev_build" ]] ; then
     read -r prev_build_date < "$prev_build"
-    if [[ "$prev_build_date" -lt "$BUILD_DATE" ]] ; then
+    if [[ "$prev_build_date" -ne "$BUILD_DATE" ]] ; then  # Just compare because 700101 can happen
       echo "$BUILD_DATE" > "$prev_build"
     else
       return 1  #  Palket nicht laden
