@@ -6,7 +6,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR', 'LOGO_TYPE', 'LOGO_SIZE' und 'LOGO_PACKAGE'
 # angepasst werden. Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=240331
+VERSION=2400904
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -150,8 +150,8 @@ fi
 
 # Alte Dateien löschen
 f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
-{ find "$SRC_DIR" -name '*.build' -name '*.7z' -type f -mtime +30 -print -delete  # Alte Pakete
-  find "$LOGO_PATH" -name '*.png' -type f -mtime +30 -print -delete               # Alte Logos
+{ find "$SRC_DIR" -name '*.build' -name '*.7z' -type f -mtime +360 -print -delete  # Alte Pakete
+  find "$LOGO_PATH" -name '*.png' -type f -mtime +360 -print -delete               # Alte Logos
 } 2>/dev/null >> "${LOGFILE:-/dev/null}"
 
 # Vorgaben

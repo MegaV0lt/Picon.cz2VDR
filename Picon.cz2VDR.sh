@@ -10,7 +10,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=240331
+VERSION=240904
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
