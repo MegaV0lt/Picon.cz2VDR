@@ -13,6 +13,12 @@
 # die Kanallogos lädt. Verzeichnis ohne abschließendes '/'
 LOGODIR='/var/lib/vdr/channellogos'  # Logos für VDR-Skin
 
+# 'LOGO_USER' ist der Benutzer, den die Logos zugewiesen werden sollen.
+#LOGO_USER='vdr'  # Vorgabe: vdr
+
+# 'LOGO_GROUP' ist die Gruppe, den die Logos zugewiesen werden sollen.
+#LOGO_GROUP='vdr'  # Vorgabe: vdr
+
 # Kanalliste vom VDR
 CHANNELSCONF='/var/lib/vdr/channels.conf'  # VDR's Kanalliste
 

@@ -10,7 +10,7 @@
 # Die Logos liegen im PNG-Format vor
 # Es müssen die Varialen 'LOGODIR' und 'CHANNELSCONF' angepasst werden
 # Das Skript am besten ein mal pro Woche ausführen (/etc/cron.weekly)
-VERSION=240904
+VERSION=250520
 
 # Sämtliche Einstellungen werden in der *.conf vorgenommen
 # ---> Bitte ab hier nichts mehr ändern! <---
@@ -52,8 +52,19 @@ f_extract_links() {
   if [[ ! "$websrc" =~ picon-transparent-220x132 ]] ; then
     websrc="${websrc/picon-/picon}"  # Workaround
   fi
-  wget "${WGET_OPT[@]}" --load-cookies="${SRC_DIR}/cookie.txt" --referer="$PICON_URL" \
-    --output-document="$tmpsrc" "$websrc"
+  if [[ -f "$tmpsrc" ]] ; then
+    # Sicherheits-Check: $tmpsrc darf nicht leer sein und muss in /tmp/ liegen
+    if [[ -n "$tmpsrc" && "$tmpsrc" == /tmp/* ]]; then
+      rm --force "$tmpsrc" || f_log ERR "Fehler beim löschen von $tmpsrc"
+    else
+      f_log ERR "Sicherheits-Check fehlgeschlagen: $tmpsrc wird nicht gelöscht!"
+    fi
+  fi
+
+  if ! wget "${WGET_OPT[@]}" --load-cookies="${SRC_DIR}/cookie.txt" --referer="$PICON_URL" \
+                             --output-document="$tmpsrc" "$websrc"; then
+    f_log ERR "Fehler beim Download! (${websrc})"
+  fi
 
   while read -r ; do  # URL in 1. Zeile, NAME in der 2. Zeile
     if [[ "$REPLY" =~ $re_url ]] ; then  # In der Zeile enthalten
@@ -137,7 +148,7 @@ for prog in "${needprogs[@]}" ; do
   type "$prog" &>/dev/null || MISSING+=("$prog")
 done
 if [[ -n "${MISSING[*]}" ]] ; then  # Fehlende Programme anzeigen
-  f_log ERR "$msgERR Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
+  f_log ERR "Sie benötigen \"${MISSING[*]}\" zur Ausführung dieses Skriptes!"
   exit 1
 fi
 
@@ -154,7 +165,7 @@ fi
 
 # Alte Dateien löschen
 f_log INFO "Lösche alte Daten aus ${SRC_DIR}…"
-{ find "$SRC_DIR" -name '*.build' -name '*.7z' -type f -mtime +360 -print -delete  # Alte Pakete
+{ find "$SRC_DIR" \( -name '*.build' -o -name '*.7z' \) -type f -mtime +360 -print -delete  # Alte Pakete
   find "$LOGO_PATH" -name '*.png' -type f -mtime +360 -print -delete               # Alte Logos
   find "$LOGODIR" -type d -empty -mtime +360 -print -delete                        # Leere Verzeichnisse löschen
 } 2>/dev/null >> "${LOGFILE:-/dev/null}"
@@ -196,6 +207,12 @@ for package in "${LOGO_PACKAGE[@]}" ; do
     wget "${WGET_OPT[@]}" --load-cookies="${SRC_DIR}/cookie.txt" --referer="$PICON_URL" \
       --output-document="${SRC_DIR}/${LOGO_ARCH}.7z" "https://picon.cz/download/${DL_URL}"
 
+    # Prüfen, ob die Datei existiert und nicht leer ist
+    if [[ ! -s "${SRC_DIR}/${LOGO_ARCH}.7z" ]]; then
+      f_log ERR "Download fehlgeschlagen oder Datei ist leer: ${SRC_DIR}/${LOGO_ARCH}.7z"
+      exit 1
+    fi
+
     # Archiv Entpacken
     f_log INFO "Entpacke Logo-Paket für ${package}…"
     if ! 7z e -bd -o"${LOGO_PATH}/" "${SRC_DIR}/${LOGO_ARCH}.7z" -y 2>/dev/null >> "${LOGFILE:-/dev/null}" ; then
@@ -223,7 +240,7 @@ for i in "${!channelsconf[@]}" ; do
   [[ "${channelsconf[i]:0:1}" == : ]] && { ((grp++)) ; continue ;}     # Kanalgruppe
   [[ "${channelsconf[i]}" =~ OBSOLETE ]] && { ((obs++)) ; continue ;}  # Als 'OBSOLETE' markierter Kanal
   [[ "${channelsconf[i]%%;*}" == '.' ]] && { ((bl++)) ; continue ;}    # '.' als Kanalname
-  unset -v 'sid' 'tid' 'nid' 'namespace' 'channeltype'
+  unset -v 'sid' 'tid' 'nid' 'namespace' 'channeltype' 'servicename'
   ((cnt++)) ; [[ -t 1 ]] && echo -ne "$msgINF Prüfe Kanal #${cnt}"\\r
   IFS=':' read -r -a vdrchannel <<< "${channelsconf[i]}"               # DELUXE MUSIC,DELUXE;BetaDigital
 
@@ -284,6 +301,12 @@ for i in "${!channelsconf[@]}" ; do
     nologo+=("$vdr_channelname -> $serviceref")  # Nicht gefundene Logos
   fi
 done  # CHANNELSCONF
+
+# Eigentümer und Berechtigungen setzen
+chown --no-dereference --recursive "${LOGO_USER:-vdr}:${LOGO_GROUP:-vdr}" "$LOGODIR" 2> "${LOGFILE:-/dev/null}" \
+  || f_log ERR "Eigentümer/Gruppe ${LOGO_USER:-vdr}:${LOGO_GROUP:-vdr} konnte nicht gesetzt werden!"
+chmod --recursive 644 "${LOGODIR}"/*.png 2> "${LOGFILE:-/dev/null}" \
+  || f_log ERR "Berechtigungen ${LOGODIR} konnten nicht gesetzt werden!"
 
 # Zupordnungen in Liste speichern
 if [[ -n "$LOGO_HIST" ]] ; then
