@@ -52,13 +52,11 @@ f_extract_links() {
   if [[ ! "$websrc" =~ picon-transparent-220x132 ]] ; then
     websrc="${websrc/picon-/picon}"  # Workaround
   fi
-  if [[ -f "$tmpsrc" ]] ; then
-    # Sicherheits-Check: $tmpsrc darf nicht leer sein und muss in /tmp/ liegen
-    if [[ -n "$tmpsrc" && "$tmpsrc" == /tmp/* ]]; then
-      rm --force "$tmpsrc" || f_log ERR "Fehler beim löschen von $tmpsrc"
-    else
-      f_log ERR "Sicherheits-Check fehlgeschlagen: $tmpsrc wird nicht gelöscht!"
-    fi
+  # Sicherheits-Check: $tmpsrc darf nicht leer sein und muss in /tmp/ liegen
+  if [[ -n "$tmpsrc" && "$tmpsrc" == /tmp/* && -f "$tmpsrc" ]]; then
+    rm --force "$tmpsrc" || f_log ERR "Fehler beim löschen von $tmpsrc"
+  else
+    f_log ERR "Sicherheits-Check fehlgeschlagen: $tmpsrc wird nicht gelöscht!"
   fi
 
   if ! wget "${WGET_OPT[@]}" --load-cookies="${SRC_DIR}/cookie.txt" --referer="$PICON_URL" \
