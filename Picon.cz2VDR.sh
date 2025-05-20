@@ -158,7 +158,7 @@ done
 SRC_DIR="${LOGODIR}/.source"  # Verzeichnis für PIcon Pakete und Cookies
 LOGO_PATH="${SRC_DIR}/Logos"  # Alle Logos in das gleiche Verzeichnis
 if [[ ! -d "$LOGO_PATH" ]] ; then
-  mkdir --parents "$LOGO_PATH" || { f_log ERR "Fehler beim erstellen von $LOGO_PATH" ; exit 1 ;}
+  mkdir --parents "$LOGO_PATH" || { f_log ERR "$LOGO_PATH kann nicht erstellt werden!" ; exit 1 ;}
 fi
 
 # Alte Dateien löschen
@@ -196,7 +196,6 @@ for package in "${LOGO_PACKAGE[@]}" ; do
   BUILD_DATE="${BUILD_INDEX[${LOGO_ARCH}]}"         # 230105
 
   # Build-Datum prüfen
-  # # Erstelldatum einlesen und mit prüfen, ob älter als die geladene…
   if f_check_build_date ; then
     optimize='true'  # Nur bei neuen Logos optimieren
 
@@ -225,9 +224,7 @@ done  # LOGO_PACKAGE
 if [[ "$optimize" == 'true' ]] ; then  # Logos optimieren
   if type pngquant &>/dev/null ; then
     f_log INFO "Optimiere Logos mit pngquant…"
-    for logo in "${LOGO_PATH}"/*.png ; do
-      pngquant --ext .png --force --skip-if-larger --strip "$logo" >> "${LOGFILE:-/dev/null}"
-    done
+    pngquant --ext .png --force --skip-if-larger --strip "${LOGO_PATH}"/*.png >> "${LOGFILE:-/dev/null}"
   else
     f_log WARN 'pngquant nicht gefunden. Logos werden nicht optimiert!'
   fi
